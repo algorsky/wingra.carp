@@ -13,8 +13,6 @@ tn_summer<- read_csv("data/tn_summer.csv")|>
             totnuf_max = (max(totnuf,na.rm = TRUE)))%>%
   mutate(removal = ifelse(year4 < 2008, "<2008", ">=2008"))
 
-tp_summer_use<- tp_summer%>%
-  select(tp_median, year4)
 tp_summer<- read_csv("data/summer_tp.csv")|>
   filter(month(sampledate) > 5 & month(sampledate) < 9)%>%
   filter(year4 != 2020)%>%
@@ -23,6 +21,8 @@ tp_summer<- read_csv("data/summer_tp.csv")|>
             tp_min = (min(tp_use,na.rm = TRUE)),
             tp_max = (max(tp_use,na.rm = TRUE)))%>%
   mutate(removal = ifelse(year4 < 2008, "<2008", ">=2008"))
+tp_summer_use<- tp_summer%>%
+  select(tp_median, year4)
 
 chloro_summer<- read_csv("data/wingra_chl_data_update.csv")|>
   filter(month(sampledate) > 5 & month(sampledate) < 9)%>%
@@ -92,16 +92,6 @@ ggplot()+
   theme_bw(base_size = 14)+
   theme(legend.position = "none", plot.caption = element_text(hjust = 0))
 
-inUrl1  <- "https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/24/29/a03d18be68db4cf2280846afe2643d5e" 
-infile1 <- tempfile()
-try(download.file(inUrl1,infile1,method="curl"))
-filamentous_algae_summer <- read_csv(infile1)|>
-  filter(lakeid == "WI")%>%
-  group_by(year4)%>%
-  summarize(sum = sum(fil_algae_wt))%>%
- # mutate(removal = ifelse(year4 < 2008, "<2008", ">=2008"))%>%
-  filter(year4 < 2019)
-
 fil_algae_timeseries<- read_csv("data/ntl_macrophyte.csv")|>
   filter(lakeid == "WI")%>%
   group_by(year4)%>%
@@ -136,8 +126,8 @@ fil_box<-ggplot(filter(macrophyte, year4 < 2019), aes(x = removal, y = fil_algae
         plot.caption = element_text(hjust = 0))
 t.test(fil_algae_wt ~removal, data = macrophyte, var.equal = TRUE)
 
-fil_plots<- fil_time +fil_box + fil_chl_plot + plot_layout(widths = c(2,1))+plot_annotation(tag_levels = 'a', tag_prefix = "(", tag_suffix = ")") 
-ggsave("figures/manuscript/manuscript/figure3.png", width = 8, height = 5, units = 'in')
+#fil_plots<- fil_time +fil_box + fil_chl_plot + plot_layout(widths = c(2,1))+plot_annotation(tag_levels = 'a', tag_prefix = "(", tag_suffix = ")") 
+#ggsave("figures/manuscript/manuscript/figure3.png", width = 8, height = 5, units = 'in')
 
 secchi_mean<- secchi_all%>%
   mutate(year4 = year(sampledate))%>%

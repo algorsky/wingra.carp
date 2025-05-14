@@ -56,6 +56,21 @@ chloro_plot<-chloro_all%>%
   mutate(removal = ifelse(year4 < 2008, '< 2008', '≥ 2008'))
 #filter(year4 < 2002 | year4> 2004)
 
+summer_zoop_sampling<- read_csv('data/zooplankton.biomass_WI.csv')|>
+  mutate(mg_m3 = ug_m3/1000)%>%
+  mutate(month = month(sample_date))%>%
+  filter(month > 5 & month < 9)%>%
+  mutate(year = year(sample_date))
+zoop_summer_mean<- summer_zoop_sampling%>%
+  group_by(sample_date)%>%
+  summarize(sum = sum(mg_m3))
+zoop_summer_sum<- zoop_summer_mean%>%
+  mutate(year = year(sample_date))%>%
+  group_by(year)%>%
+  summarize(mean_sum = mean(sum),
+            n = n())%>%
+  mutate(removal = ifelse(year < 2008, "<2008", ">=2008"))
+
 secchi_timeseries<- ggplot()+
   geom_vline(xintercept = 2008, linetype = "dashed")+
   geom_point(data = secchi_all, aes(x = sampledate, y = secnview, fill = removal), size = 2.5, shape = 21, alpha = 0.5)+
@@ -82,7 +97,7 @@ secchi_boxplot<-ggplot(secchi_summer, aes(x = removal, y = secchi_median))+
         plot.caption = element_text(hjust = 0))
 
 t.test(secchi_median ~removal, data = secchi_summer, var.equal = TRUE)
-
+acf(secchi_summer$secchi_median)
 
 secchi_plots<-secchi_timeseries + secchi_boxplot+ plot_layout(widths = c(2,1))
 
@@ -111,6 +126,7 @@ tn_box<- ggplot(tn_plot, aes(x = removal, y = totnuf_median/1000))+
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),
         plot.caption = element_text(hjust = 0))
 t.test(totnuf_median ~removal, data = tn_plot, var.equal = TRUE)
+acf(tn_plot$totnuf_median)
 tn_plots<-tn_timeseries + tn_box + plot_layout(widths = c(2,1))
 
 secchi_plots / chloro_plots / tn_plots / tp_plots
@@ -143,6 +159,7 @@ tp_box<- ggplot(tp_plot, aes(x = removal, y = tp_median))+
         plot.caption = element_text(hjust = 0))
 t.test(tp_median ~removal, data = tp_plot, var.equal = TRUE)
 tp_plots<-tp_timeseries + tp_box + plot_layout(widths = c(2,1))
+acf(tp_plot$tp_median)
 
 chloro_time<- ggplot()+
   geom_point(data = chloro_all, aes(x = sampledate, y = chl_use, fill = removal), size = 2.5, shape = 21, alpha = 0.5)+
@@ -169,7 +186,9 @@ chloro_box<- ggplot(chloro_plot, aes(x = removal, y = chloro_median))+
         plot.caption = element_text(hjust = 0))
 t.test(chloro_median ~removal, data = chloro_plot, var.equal = TRUE)
 chloro_plots<- chloro_time + chloro_box + plot_layout(widths = c(2,1))
-
+chloro_acf<-chloro_plot%>%
+  filter(year4 > 2004)
+acf(chloro_acf$chloro_median)
 
 macrophyte<- read_csv("data/ntl_macrophyte.csv")
 macrophyte_wi<- macrophyte%>%
@@ -191,8 +210,6 @@ fil_time<-ggplot(fil_algae_sum, aes(x = year4, y = sum, fill = removal))+
   theme_bw(base_size = 16)+
   theme(legend.position = "none", plot.caption = element_text(hjust = 0))
 
-ggsave("figures/fil_timeseries_tag.png", width = 6, height = 3, units = 'in')
-
 fil_box<-ggplot(fil_algae_sum, aes(x = removal, y = sum))+
   geom_boxplot(outlier.color = NA)+
   geom_jitter(aes(fill = removal), shape = 21, alpha = 0.5)+
@@ -207,22 +224,13 @@ fil_box<-ggplot(fil_algae_sum, aes(x = removal, y = sum))+
         plot.caption = element_text(hjust = 0))
 t.test(sum ~removal, data = fil_algae_sum, var.equal = TRUE)
 fil_plots<- fil_time +fil_box + plot_layout(widths = c(2,1))
+acf(fil_algae_sum$sum)
 
 
 
 secchi_plots/chloro_plots/tn_plots/tp_plots+ plot_layout(widths = c(2,1)) + 
   plot_annotation(tag_levels = paste("a"), tag_suffix = ")",  theme(element_text(size = 9)))
 ggsave("figures/manuscript/summer_timeseries_nutrients.png", width = 11, height = 9, units = 'in')
-
-secchi_plots/chloro_plots/tn_plots/tp_plots+ plot_layout(widths = c(2,1)) + 
-  plot_annotation(tag_levels = paste("a"),tag_prefix = "(", tag_suffix = ")",  theme(element_text(size = 9)))
-
-secchi_time/chloro_time/tn_time/tp_time+ 
-  plot_annotation(tag_levels = paste("a"), tag_prefix = "(",tag_suffix = ")",  theme(element_text(size = 9)))
-ggsave("figures/summer_time.png", width = 7, height = 7.5, units = 'in')
-secchi_box/chloro_box/tn_box/tp_box+ 
-  plot_annotation(tag_levels = paste("a"), tag_prefix = "(",tag_suffix = ")",  theme(element_text(size = 9)))
-ggsave("figures/summer_box.png", width = 7, height = 7.5, units = 'in')
 
 layout <- (secchi_time/chloro_time/tn_time/tp_time) | (secchi_box/chloro_box/tn_box/tp_box)
 

@@ -74,7 +74,7 @@ zoop_summer_sum<- zoop_summer_mean%>%
 secchi_timeseries<- ggplot()+
   geom_vline(xintercept = 2008, linetype = "dashed")+
   geom_point(data = secchi_all, aes(x = sampledate, y = secnview, fill = removal), size = 2.5, shape = 21, alpha = 0.5)+
-  geom_line(data = secchi_summer, aes(x = as.Date(paste0(year, "-07-01")), y = secchi_median), size = 1.5)+
+  geom_line(data = secchi_summer, aes(x = as.Date(paste0(year, "-07-01")), y = secchi), size = 1.5)+
    #geom_errorbar(aes(ymin =secchi_min, ymax =  secchi_max), width = 0)+
  # scale_x_continuous(limits = c(1995,2023), breaks = seq(1995, 2023, 5))+
   ylab("Secchi (m)")+
@@ -83,7 +83,7 @@ secchi_timeseries<- ggplot()+
   theme_bw(base_size = 14)+
   theme(legend.position = "none", 
         plot.caption = element_text(hjust = 0))
-secchi_boxplot<-ggplot(secchi_summer, aes(x = removal, y = secchi_median))+
+secchi_boxplot<-ggplot(secchi_summer, aes(x = removal, y = secchi))+
   geom_boxplot(outlier.color = NA)+
   geom_jitter(aes(fill = removal), shape = 21, alpha = 0.5)+
   scale_fill_manual(values = c( "white", "black"))+
@@ -96,8 +96,8 @@ secchi_boxplot<-ggplot(secchi_summer, aes(x = removal, y = secchi_median))+
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),
         plot.caption = element_text(hjust = 0))
 
-t.test(secchi_median ~removal, data = secchi_summer, var.equal = TRUE)
-acf(secchi_summer$secchi_median)
+t.test(secchi ~removal, data = secchi_summer, var.equal = TRUE)
+acf(secchi_summer$secchi)
 
 secchi_plots<-secchi_timeseries + secchi_boxplot+ plot_layout(widths = c(2,1))
 

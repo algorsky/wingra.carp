@@ -15,7 +15,7 @@ tn_plot<- tn_summer%>%
   mutate(year4 = year(sampledate))%>%
   filter(month(sampledate) > 5 & month(sampledate) < 9)%>%
   group_by(year4)%>%
-  summarize(totnuf_median = (mean(totnuf,na.rm = TRUE)),
+  summarize(totnuf_median = (median(totnuf,na.rm = TRUE)),
             totnuf_min = (min(totnuf,na.rm = TRUE)),
             totnuf_max = (max(totnuf,na.rm = TRUE)))%>%
   mutate(year4 = ifelse(year4 == 2008, 2008.2, year4))%>%
@@ -28,7 +28,7 @@ tp_plot<- tp_summer%>%
   filter(month(sampledate) > 5 & month(sampledate) < 9)%>%
 #  filter(year4 != 2020)%>%
   group_by(year4)%>%
-  summarize(tp_median = (mean(tp_use,na.rm = TRUE)),
+  summarize(tp_median = (median(tp_use,na.rm = TRUE)),
             tp_min = (min(tp_use,na.rm = TRUE)),
             tp_max = (max(tp_use,na.rm = TRUE)))%>%
   mutate(year4 = ifelse(year4 == 2008, 2008.2, year4))%>%

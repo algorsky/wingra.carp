@@ -102,6 +102,10 @@ macrophyte<- read_csv("data/ntl_macrophyte.csv")|>
   filter(lakeid == "WI")%>%
   mutate(removal = ifelse(year4 < 2008, "<2008", ">=2008"))
 
+fil_summary<- fil_algae_timeseries%>%
+  group_by(removal)%>%
+  summarize(median = median(fil_algae_sum, na.rm = T))
+
 fil_time<-ggplot(filter(fil_algae_timeseries, year4 < 2019), aes(x = year4, y = fil_algae_sum, fill = removal))+
   geom_bar(stat = "identity", color = "black")+
   geom_vline(xintercept = 2008, linetype = "dashed")+

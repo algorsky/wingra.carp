@@ -1,5 +1,7 @@
-nuts = loadLTERnutrients() |> filter(lakeid == 'WI')
+library(tidyverse)
+library(NTLlakeloads)
 
+#Secchi
 secchi_all<- read_csv("data/secchi_all.csv")%>%
   filter(month(sampledate) > 5 & month(sampledate) < 9)%>%
   mutate(removal = ifelse(year(sampledate) < 2008, "<2008", ">=2008"))
@@ -7,6 +9,9 @@ secchi_all<- read_csv("data/secchi_all.csv")%>%
 secchi_summary<- secchi_all%>%
   group_by(removal)%>%
   summarize(median = median(secnview, na.rm = T))
+
+#Nutrients
+nuts = loadLTERnutrients() |> filter(lakeid == 'WI')
 tn<- nuts|> 
   filter(month(sampledate) %in% c(6,7,8)) |> 
   filter(depth == 0) |> 
@@ -19,7 +24,6 @@ tn<- nuts|>
   filter(totnuf > 12)|>
   mutate(year4 = year(sampledate))|>
   mutate(group = if_else(year4 < 2008, 'pre', 'post'))
-
 tn_summary<- tn%>%
   group_by(group)%>%
   summarize(median = median(totnuf, na.rm = T))
@@ -35,21 +39,22 @@ tp<- nuts|>
   summarise(totpuf = mean(value, na.rm = T)) |> 
   mutate(year4 = year(sampledate))|>
   mutate(group = if_else(year4 < 2008, 'pre', 'post'))
-
 tp_summary<- tp%>%
   group_by(group)%>%
   summarize(median = median(totpuf, na.rm = T))
 
-
+#Chlorophyll
 chloro_all<- read_csv("data/wingra_chl_data_update.csv")|>
   mutate(removal = ifelse(year(sampledate) < 2008, "<2008", ">=2008"))%>%
   filter(month(sampledate) > 5 & month(sampledate) < 9)
-
 chloro_summary<- chloro_all%>%
   group_by(removal)%>%
   summarize(median = median(chl_use, na.rm = T))
 
+#DNR Macrophyte
+macro<- read_csv("data/dnr_macrophyte_sum.csv")
 
+#Zooplankton
 summer_zoop_sampling<- read_csv('data/zooplankton.biomass_WI.csv')|>
   mutate(mg_m3 = ug_m3/1000)%>%
   mutate(month = month(sample_date))%>%
@@ -65,4 +70,9 @@ zoop_summer_sum<- zoop_summer_mean%>%
             n = n())%>%
   mutate(removal = ifelse(year < 2008, "<2008", ">=2008"))
 
-macro<- read_csv("data/dnr_macrophyte_sum.csv")
+#Filamentous algae
+fil_algae_timeseries<- read_csv("data/ntl_macrophyte.csv")|>
+  filter(lakeid == "WI")%>%
+  group_by(year4)%>%
+  summarize(fil_algae_sum = sum(fil_algae_wt))%>%
+  mutate(removal = ifelse(year4 < 2008, '< 2008', '≥ 2008'))

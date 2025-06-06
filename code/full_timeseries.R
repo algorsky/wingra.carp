@@ -76,3 +76,8 @@ fil_algae_timeseries<- read_csv("data/ntl_macrophyte.csv")|>
   group_by(year4)%>%
   summarize(fil_algae_sum = sum(fil_algae_wt))%>%
   mutate(removal = ifelse(year4 < 2008, '< 2008', '≥ 2008'))
+
+#Summary medians
+summary_medians<- read_csv("data/summary_medians_update.csv")
+
+

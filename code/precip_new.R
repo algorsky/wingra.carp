@@ -13,7 +13,6 @@ summary_medians<- read_csv("data/summary_medians.csv")|>
   left_join(arb.spring, by = "year4")%>%
   mutate(removal = ifelse(removal == ">=2008", "≥2008", removal))
 
-
 ggplot(summary_medians) +
   geom_smooth(aes(x = arb.precip, y = tp_median, col = removal), method = 'lm') +
   geom_point(aes(x = arb.precip, y = tp_median, fill = removal), shape = 21, size = 2.5)+
